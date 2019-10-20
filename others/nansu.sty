@@ -1,0 +1,33 @@
+\usepackage[dvipdfmx]{graphicx}
+\usepackage[dvipdfmx]{color}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+\newcommand{\panda}{\raisebox{-.3ex}{\resizebox{!}{1zh}{\begin{tikzpicture}
+\def\ang{60}
+\def\angone{45}
+%\draw (0,2.5) ellipse (1.5 and 1) [rotate=60];
+\fill [black] ($(0,0)!1!\ang:(0,2.6)$) circle [x radius=1.5, y radius=1.5, rotate=\ang];
+\fill [black] ($(0,0)!1!-\ang:(0,2.6)$) circle [x radius=1.5, y radius=1.5, rotate=-\ang];
+\draw [fill=white, line width=5pt] (0,0) ellipse (3 and 2.5);
+\fill [black] (-1.5,0.5) circle [x radius=0.7, y radius=1, rotate=-\angone];
+\fill [black] (1.5,0.5) circle [x radius=0.7, y radius=1, rotate=\angone];
+\fill [black] (0,0) circle [x radius=0.4, y radius=0.3];
+\end{tikzpicture}}}}
+
+\newcommand{\hiyoko}{\raisebox{-.2ex}{\,\resizebox{!}{1zh}{%
+\begin{tikzpicture}%
+    \def\ang{30}%
+    \def\linwid{5pt}%
+    \draw[line width=\linwid, fill=yellow] (0,0.25) ellipse (2.5 and 2.25);%
+%
+    \draw[line width=\linwid] (-1,0) node (v1) {} -- (1,0);%
+    \draw[line width=\linwid]  (0,0) node (v2) {} ellipse (1 and 0.75);%
+    \draw[fill]  (-1,1.25) ellipse (0.2 and 0.2);%
+    \draw[fill]  (1,1.25) ellipse (0.2 and 0.2);%
+%
+    \draw[line width=\linwid] (0,2.5) -- (0,3.75);%
+    \draw[line width=\linwid] (0,2.5) -- ($(0,2.5)!1!\ang:(0,3.5)$);%
+    \draw[line width=\linwid] (0,2.5) -- ($(0,2.5)!1!-\ang:(0,3.5)$);%
+\end{tikzpicture}%
+}\,}}
