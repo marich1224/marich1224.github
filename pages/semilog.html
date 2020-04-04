@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<!--
+ソースコードは
+https://mam-mam.net/mytech/show.php?cd=160
+を参考にしました
+-->
+<html lang="ja">
+<head>
+  <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <title>片対数グラフ</title>
+  <meta name="viewport" content="width=devide-width,init-scale=1,user-scalable=no,minimum-scale=1,maximum-scale=1">
+  <script>
+    var can, outcan;
+    var ct, outctx;
+    var ox=0,oy=0,x=0,y=0;
+    var mf=false;
+    function canvases_init(){
+      left_canvas_init();
+      right_canvas_init();
+    }
+    function left_canvas_init(){
+      //初期設定
+      can=document.getElementById("canvinput");
+      can.addEventListener("touchstart",onDown,false);
+      can.addEventListener("touchmove",onMove,false);
+      // can.addEventListener("touchend",onUp,false);
+      document.addEventListener("touchend",onUp,false);
+      can.addEventListener("mousedown",onMouseDown,false);
+      can.addEventListener("mousemove",onMouseMove,false);
+      // can.addEventListener("mouseup",onMouseUp,false);
+      document.addEventListener("mouseup",onMouseUp,false);
+      ct=can.getContext("2d");
+      ct.lineJoin="round";
+      ct.lineCap="round";
+      clearCan(ct);
+      ct.strokeStyle="#ff0000";
+      ct.lineWidth=5;
+    }
+    function right_canvas_init(){
+      //初期設定
+      outcan=document.getElementById("canvoutput");
+      outctx=outcan.getContext("2d");
+      outctx.lineJoin="round";
+      outctx.lineCap="round";
+      clearAllCan();
+      outctx.strokeStyle="#ff0000";
+      outctx.lineWidth=5;
+    }
+    function onDown(event){
+      mf=true;
+      ox=event.touches[0].pageX-event.target.getBoundingClientRect().left;
+      oy=event.touches[0].pageY-event.target.getBoundingClientRect().top;
+      event.stopPropagation();
+    }
+    function onMove(event){
+      if(mf){
+        x=event.touches[0].pageX-event.target.getBoundingClientRect().left;
+        y=event.touches[0].pageY-event.target.getBoundingClientRect().top;
+        drawLine();
+        ox=x;
+        oy=y;
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }
+    function onUp(event){
+      mf=false;
+      event.stopPropagation();
+    }
+
+    function onMouseDown(event){
+      ox=event.clientX-event.target.getBoundingClientRect().left;
+      oy=event.clientY-event.target.getBoundingClientRect().top ;
+      mf=true;
+    }
+    function onMouseMove(event){
+      if(mf){
+        x=event.clientX-event.target.getBoundingClientRect().left;
+        y=event.clientY-event.target.getBoundingClientRect().top ;
+        drawLine();
+        ox=x;
+        oy=y;
+      }
+    }
+    function onMouseUp(event){
+      mf=false;
+    }
+    function drawLine(){
+      // input side
+      ct.beginPath();
+      ct.moveTo(ox,oy);
+      ct.lineTo(x,y);
+      ct.stroke();
+
+      // semilog side
+      outctx.beginPath();
+      outctx.moveTo(ox,calclog(400-oy));
+      outctx.lineTo(x,calclog(400-y));
+      outctx.stroke();
+    }
+
+    function calclog(x){
+      return (1 - Math.log(x) / Math.log(400)) * 400;
+    }
+
+    function clearCan(ctx, is_semilog){
+      ctx.fillStyle="rgb(255,255,255)";
+      ctx.fillRect(0,0,can.getBoundingClientRect().width,can.getBoundingClientRect().height);
+      ctx.strokeStyle="#aaaaaa";
+      ctx.lineWidth=1;
+      ctx.beginPath();
+      var max_i = 5
+      var coord=0;
+      for (var i=1; i<max_i; i++){
+        coord = i*400/max_i;
+        ctx.moveTo(coord, 0);
+        ctx.lineTo(coord, 400);
+        ctx.stroke();
+        if (is_semilog){
+          coord = calclog(coord);
+        }
+        ctx.moveTo(0, coord);
+        ctx.lineTo(400, coord);
+        ctx.stroke();
+      }
+      ctx.strokeStyle="#ff0000";
+      ctx.lineWidth=5;
+    }
+
+    function clearAllCan(){
+      clearCan(ct, false);
+      clearCan(outctx, true);
+    }
+  </script>
+  <style type="text/css">
+    /* :root {
+      --base-description-height: 20px;
+    } */
+    div.main {
+      position: relative;
+      /* top: 50px; */
+      left: 20px;
+      height: 500px;
+    }
+    div.selector {
+      /* position: relative; */
+      /* top: 50px; */
+      /* left: 100px; */
+      position: static;
+    }
+
+    div.description {
+      position: relative;
+      left: 50px;
+      width: 800px;
+      /* height: var(--base-description-height); */
+    }
+    /* .clearbutton {
+      position: absolute;
+      bottom: 20px;
+      left: 500px;
+    } */
+    div.canvas_title h3{
+      position: relative;
+      text-align: center;
+      margin: 5 auto;
+      width: 400px;
+    }
+    div.canvas {
+      position: relative;
+      /* top: var(--base-description-height); */
+      border: 1px solid black;
+      width: 400px;
+      height: 400px;
+    }
+    #left {
+      position: absolute;
+      left: 50px;
+    }
+    #right {
+      position: absolute;
+      left: 500px;
+    }
+
+  </style>
+</head>
+<body onload="canvases_init();">
+  <div class="description">
+    <h1>片対数グラフ</h1>
+    <p>
+      ぎゅいーんと上がる曲線なら，片対数グラフで見れば全部直線になるのでは？？？と思ったので作ってみた．<br/>
+      指数関数っぽく書かないといい感じに直線にならない(それはそう)．
+    </p>
+  </div>
+  <div class="main">
+    <div class="canvas_title" id="left">
+      <h3>入力側(線形)</h3>
+      <div class="canvas">
+        <canvas id="canvinput" width="400px" height="400px"></canvas>
+      </div>
+    </div>
+    <div class="canvas_title" id="right">
+      <h3>出力側(片対数)</h3>
+      <div class="canvas">
+        <canvas id="canvoutput" width="400px" height="400px"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="selector">
+    <!-- <h3>片対数グラフ</h3>
+    <p>ぎゅいーんと上がる曲線なら，片対数グラフで見れば全部直線になるのでは？？？と思ったので作ってみた
+      指数関数っぽく書かないといい感じに曲線にならない
+    </p> -->
+    <input class="clearbutton" type="button" onClick="clearAllCan();" value="クリア" style="width:100;height:30;" />
+  </div>
+</body>
+</html>
