@@ -1,0 +1,4 @@
+[submodule "pages/minesweeper"]
+	path = pages/minesweeper
+	url = https://github.com/marich1224/nance-minesweeper.git
+	branch = first-arrange
