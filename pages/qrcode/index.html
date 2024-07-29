@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/encoding-japanese/2.0.0/encoding.min.js"></script>
+
+    <script src="./html_interface.js"></script>
+    <script src="./qrcode_constants.js"></script>
+    <script src="./polynomial_division.js"></script>
+    <script src="./qrcode_encode.js"></script>
+    <script src="./qrcode_draw.js"></script>
+
+    <head>
+        <meta charset="utf-8">
+        <title>Title</title>
+        <style type="text/css">
+            textarea{
+                width: 67%;
+                height: 50px;
+            }
+            table{
+                text-align: center;
+                border-spacing: 0;
+            }
+            div.main{
+                padding-right: 10px;
+                padding-bottom: 10px;
+                width: 80%;
+                height: 20rem;
+                border: 1px solid #000;
+                overflow-y: scroll;
+            }
+            td{
+                padding: 5px;
+            }
+            td#qrCodeElement{
+                padding: 0px;
+            }
+            td#filled_zeros{
+                color: #c0c0c0;
+            }
+            td.quotientDecimal{
+                font-weight: bold;
+            }
+            td.finalResult{
+                font-weight: bold;
+                color: red;
+            }
+            td.oplus{
+                text-align: right;
+            }
+            td.finalstep{
+                border-bottom: 1px solid #000;
+            }
+            td.triviallyZero{
+                color: #c0c0c0;
+            }
+            div#w{
+                background-color: #fff;
+                width: 10px;
+                height: 10px;
+            }
+            div#k{
+                background-color: #000;
+                width: 10px;
+                height: 10px;
+            }
+        </style>
+    </head>
+    <body>
+        <input type="text" name="rawtext" id="rawtext" value="こんにちは！">
+
+        <br>
+
+        <label for="qrcodeVersion">バージョン</label>
+        <select id="qrcodeVersion">
+            <option value="1" selected>1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+        </select>
+
+        <label for="qrcodeErrorLevel">誤り訂正レベル</label>
+        <select id="qrcodeErrorLevel">
+            <option value="L" selected>L</option>
+            <option value="M">M</option>
+            <option value="Q">Q</option>
+            <option value="H">H</option>
+        </select>
+
+        <p style="color: red; font-weight: bold;">注意: 「3-Q」「3-H」「4-M」「4-Q」「4-H」に関しては，追加の実装が必要となるため未対応．</p>
+
+        <label><input type="radio" name="datamode" value="number" >数字モード</label>
+        <label><input type="radio" name="datamode" value="ascii" >英数字モード</label>
+        <label><input type="radio" name="datamode" value="8bit">8ビットモード</label>
+        <label><input type="radio" name="datamode" value="kanji" checked>漢字モード</label>
+        <input type="button" value="Check" id="dataMode">
+        
+        <script>
+            let dataMode = document.getElementById('dataMode');
+            dataMode.addEventListener('click', showDatamode);
+        </script>
+
+        <textarea type="text" id="rawdata_qrcode" name="name">10000001 00110011 01000010 00101111 10110000 00100110 01100001 01110001 01100101 00101010 01000001 00000010 01010110 00010100 01010000 10011011 10000000 00100100 00100111 00000001 01000001 00001010 00110001 10010111 10001100 10001110 00010011 01010000 10101110 00000100 11011100 00000001 00100000 11101100</textarea>
+        <input type="button" value="Check" id="checkButton">
+        <script>
+            let checkButton = document.getElementById('checkButton');
+            checkButton.addEventListener('click', buttonClick);
+        </script>
+        <div class="main">
+            <table border="0" id="main_form">
+                <tbody id="main_table">
+                </tbody>
+            </table>
+        </div>
+        
+        <br>
+        <label for="qrcodeMask">マスク</label>
+        <select id="qrcodeMask">
+            <option value="000">000</option>
+            <option value="001">001</option>
+            <option value="010">010</option>
+            <option value="011">011</option>
+            <option value="100">100</option>
+            <option value="101">101</option>
+            <option value="110">110</option>
+            <option value="111">111</option>
+        </select>
+        <br>
+        <textarea type="text" id="qrcodeFullData" name="name"></textarea>
+        <input type="button" value="Check" id="convertIntoQRCode">
+        <script>
+            let fullCode = document.getElementById('convertIntoQRCode');
+            fullCode.addEventListener('click', showFullQRCode);
+        </script>
+
+        <br>
+        <div style="padding: 60px;">
+            <table id="showQRCodeParent">
+                <tbody id="showQRCode">
+                </tbody>
+            </table>
+        </div>
+
+        <svg width="290" height="160" id="svgArea">
+          </svg>
+
+
+    </body>
+</html>
