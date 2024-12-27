@@ -31,8 +31,8 @@
   <canvas id="drawingCanvas" width="500" height="500"></canvas>
   <textarea id="output" readonly></textarea>
   <div id="controls">
-    <input type="text" id="filename" placeholder="Enter file name" value="coordinates.json">
-    <button id="downloadButton">Download</button>
+    <input type="text" id="filename" placeholder="Enter file name (without .json)">
+    <button id="downloadButton" disabled>Download</button>
     <button id="copyButton">Copy to Clipboard</button>
   </div>
   <script>
@@ -105,16 +105,23 @@
       output.value = JSON.stringify(jsonOutput, null, 2);
     }
 
+    filenameInput.addEventListener('input', () => {
+      const value = filenameInput.value.trim();
+      downloadButton.disabled = !value;
+    });
+
     downloadButton.addEventListener('click', () => {
-      const filename = filenameInput.value.trim() || 'coordinates.json';
-      const jsonOutput = {
-        data: paths
-      };
-      const blob = new Blob([JSON.stringify(jsonOutput, null, 2)], { type: 'application/json' });
-      const link = document.createElement('a');
-      link.href = URL.createObjectURL(blob);
-      link.download = filename;
-      link.click();
+      const filename = filenameInput.value.trim();
+      if (filename) {
+        const jsonOutput = {
+          data: paths
+        };
+        const blob = new Blob([JSON.stringify(jsonOutput, null, 2)], { type: 'application/json' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `${filename}.json`;
+        link.click();
+      }
     });
 
     copyButton.addEventListener('click', () => {
