@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coordinate Tracker</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+      cursor: crosshair;
+    }
+    textarea {
+      width: 100%;
+      height: 150px;
+      margin-top: 10px;
+    }
+    #controls {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Draw and Track Coordinates</h1>
+  <canvas id="drawingCanvas" width="500" height="500"></canvas>
+  <textarea id="output" readonly></textarea>
+  <div id="controls">
+    <input type="text" id="filename" placeholder="Enter file name" value="coordinates.json">
+    <button id="downloadButton">Download</button>
+    <button id="copyButton">Copy to Clipboard</button>
+  </div>
+  <script>
+    const canvas = document.getElementById('drawingCanvas');
+    const ctx = canvas.getContext('2d');
+    const output = document.getElementById('output');
+    const downloadButton = document.getElementById('downloadButton');
+    const copyButton = document.getElementById('copyButton');
+    const filenameInput = document.getElementById('filename');
+
+    let drawing = false;
+    let lastPosition = null;
+    let paths = [];
+    let currentPath = [];
+
+    canvas.addEventListener('mousedown', (event) => {
+      drawing = true;
+      currentPath = [];
+      addCoordinate(event);
+    });
+
+    canvas.addEventListener('mousemove', (event) => {
+      if (drawing) {
+        addCoordinate(event);
+      }
+    });
+
+    canvas.addEventListener('mouseup', () => {
+      if (drawing) {
+        drawing = false;
+        if (currentPath.length > 0) {
+          paths.push(currentPath);
+          updateOutput();
+        }
+        lastPosition = null;
+      }
+    });
+
+    canvas.addEventListener('mouseleave', () => {
+      if (drawing) {
+        drawing = false;
+        if (currentPath.length > 0) {
+          paths.push(currentPath);
+          updateOutput();
+        }
+        lastPosition = null;
+      }
+    });
+
+    function addCoordinate(event) {
+      const rect = canvas.getBoundingClientRect();
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      if (lastPosition) {
+        ctx.beginPath();
+        ctx.moveTo(lastPosition[0], lastPosition[1]);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+      }
+
+      currentPath.push([x, y]);
+      lastPosition = [x, y];
+    }
+
+    function updateOutput() {
+      const jsonOutput = {
+        data: paths
+      };
+      output.value = JSON.stringify(jsonOutput, null, 2);
+    }
+
+    downloadButton.addEventListener('click', () => {
+      const filename = filenameInput.value.trim() || 'coordinates.json';
+      const jsonOutput = {
+        data: paths
+      };
+      const blob = new Blob([JSON.stringify(jsonOutput, null, 2)], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = filename;
+      link.click();
+    });
+
+    copyButton.addEventListener('click', () => {
+      output.select();
+      document.execCommand('copy');
+      alert('Data copied to clipboard!');
+    });
+  </script>
+</body>
+</html>
