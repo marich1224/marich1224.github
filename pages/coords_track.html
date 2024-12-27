@@ -5,17 +5,24 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Coordinate Tracker</title>
   <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
     canvas {
       border: 1px solid black;
       cursor: crosshair;
+      display: block;
+      margin: 0 auto;
+      touch-action: none;
     }
     textarea {
-      width: 100%;
+      width: calc(100% - 20px);
       height: 150px;
-      margin-top: 10px;
+      margin: 10px;
     }
     #controls {
-      margin-top: 10px;
+      margin: 10px;
     }
   </style>
 </head>
@@ -41,30 +48,29 @@
     let paths = [];
     let currentPath = [];
 
-    canvas.addEventListener('mousedown', (event) => {
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('touchstart', (event) => startDrawing(event, true));
+
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('touchmove', (event) => draw(event, true));
+
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing);
+    canvas.addEventListener('touchend', stopDrawing);
+
+    function startDrawing(event, isTouch = false) {
       drawing = true;
       currentPath = [];
-      addCoordinate(event);
-    });
+      addCoordinate(event, isTouch);
+    }
 
-    canvas.addEventListener('mousemove', (event) => {
+    function draw(event, isTouch = false) {
       if (drawing) {
-        addCoordinate(event);
+        addCoordinate(event, isTouch);
       }
-    });
+    }
 
-    canvas.addEventListener('mouseup', () => {
-      if (drawing) {
-        drawing = false;
-        if (currentPath.length > 0) {
-          paths.push(currentPath);
-          updateOutput();
-        }
-        lastPosition = null;
-      }
-    });
-
-    canvas.addEventListener('mouseleave', () => {
+    function stopDrawing() {
       if (drawing) {
         drawing = false;
         if (currentPath.length > 0) {
@@ -73,12 +79,12 @@
         }
         lastPosition = null;
       }
-    });
+    }
 
-    function addCoordinate(event) {
+    function addCoordinate(event, isTouch = false) {
       const rect = canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
-      const y = event.clientY - rect.top;
+      const x = isTouch ? event.touches[0].clientX - rect.left : event.clientX - rect.left;
+      const y = isTouch ? event.touches[0].clientY - rect.top : event.clientY - rect.top;
 
       if (lastPosition) {
         ctx.beginPath();
@@ -89,6 +95,7 @@
 
       currentPath.push([x, y]);
       lastPosition = [x, y];
+      if (isTouch) event.preventDefault();
     }
 
     function updateOutput() {
